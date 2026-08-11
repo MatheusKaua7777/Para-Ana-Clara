@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para você</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Caveat:wght@500;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0509;
+    --bg-2: #150a10;
+    --pink: #ffb6c1;
+    --pink-soft: #ff8fa3;
+    --gold: #e8c39e;
+    --cream: #f6ece2;
+    --line: rgba(232,195,158,0.35);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    background:
+      radial-gradient(ellipse at 50% 0%, var(--bg-2) 0%, var(--bg) 55%);
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    overflow-x:hidden;
+  }
+
+  .page{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.75;
+    margin-bottom: 6px;
+  }
+
+  .heart-wrap{
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    aspect-ratio: 1 / 0.92;
+    animation: heartbeat 2.4s ease-in-out infinite;
+    transform-origin: 50% 55%;
+  }
+
+  @keyframes heartbeat{
+    0%   { transform: scale(1); }
+    14%  { transform: scale(1.045); }
+    28%  { transform: scale(0.99); }
+    42%  { transform: scale(1.03); }
+    70%  { transform: scale(1); }
+    100% { transform: scale(1); }
+  }
+
+  #heart-svg{
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 0 26px rgba(255,143,163,0.25));
+  }
+
+  #heart-svg text{
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    fill: var(--pink);
+    user-select: none;
+  }
+
+  .quote-block{
+    margin-top: 18px;
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+  }
+
+  .mark{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 40px;
+    color: var(--gold);
+    line-height: 0.4;
+    opacity: 0.85;
+  }
+
+  .frase{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.5;
+    color: var(--cream);
+    padding: 6px 8px 10px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .signature{
+    margin-top: 22px;
+    font-family: 'Caveat', cursive;
+    font-size: 30px;
+    color: var(--pink-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .heart-wrap{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="eyebrow">Para Meu amor</div>
+
+  <div class="heart-wrap">
+    <svg id="heart-svg" viewBox="0 0 500 460"></svg>
+  </div>
+
+  <div class="quote-block">
+    <div class="mark">&ldquo;</div>
+    <div class="frase">Queria estar aí agora, te abraçar bem forte e fazer o mundo ficar em silêncio por alguns minutos.</div>
+    <div class="signature">— Ana Clara —</div>
+  </div>
+</div>
+
+<script>
+  // ================================
+  //   PERSONALIZE AQUI
+  // ================================
+  const PALAVRA = "I LOVE YOU "; // texto que forma o coração
+  // ================================
+
+  const svg = document.getElementById('heart-svg');
+  const ns = "http://www.w3.org/2000/svg";
+  const cx = 250, cy = 210; // centro do coração no viewBox
+  const repeated = PALAVRA.repeat(600);
+  let cursor = 0;
+
+  // mais anéis, mais pontos por anel e fonte menor = letras bem coladas
+  const rings = [10, 10.6, 11.2, 11.8, 12.4, 13, 13.6, 14.2, 14.8, 15.4, 16];
+  const pointsPerRing = 230;
+
+  rings.forEach((scale, ringIndex) => {
+    for (let i = 0; i < pointsPerRing; i++) {
+      const angle = (i / pointsPerRing) * Math.PI * 2;
+
+      const x = 16 * Math.pow(Math.sin(angle), 3);
+      const y = 13 * Math.cos(angle) - 5 * Math.cos(2 * angle)
+                - 2 * Math.cos(3 * angle) - Math.cos(4 * angle);
+
+      const px = cx + x * scale;
+      const py = cy - y * scale; // inverte eixo Y (SVG cresce pra baixo)
+
+      const char = repeated[cursor % repeated.length];
+      cursor++;
+
+      const t = document.createElementNS(ns, "text");
+      t.setAttribute("x", px);
+      t.setAttribute("y", py);
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", 5.5);
+
+      // opacidade e cor variam por camada, dando profundidade
+      const depth = ringIndex / (rings.length - 1);
+      t.style.fill = depth < 0.5 ? "#ff8fa3" : "#ffd1da";
+      t.style.opacity = 0.6 + depth * 0.4;
+
+      t.textContent = char;
+      svg.appendChild(t);
+    }
+  });
+</script>
+
+</body>
+</html>
